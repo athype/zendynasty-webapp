@@ -65,38 +65,39 @@
         />
       </svg>
     </div>
+    <!-- Restore sticky header markup here, outside .zen-header-grid -->
+    <transition name="fade">
+      <div v-if="showSticky" class="zen-header-sticky desktop-only">
+        <span class="zen-logo-sticky">ZEN</span>
+        <nav class="zen-nav-sticky">
+          <a href="#about" class="zen-nav-link-sticky">
+            <span class="nav-text-stack">
+              <span class="nav-text nav-text-top">About</span>
+              <span class="nav-text nav-text-bottom">About</span>
+            </span>
+          </a>
+          <RouterLink to="/leaderboards" class="zen-nav-link-sticky">
+            <span class="nav-text-stack">
+              <span class="nav-text nav-text-top">Leaderboards</span>
+              <span class="nav-text nav-text-bottom">Leaderboards</span>
+            </span>
+          </RouterLink>
+          <RouterLink to="/blog" class="zen-nav-link-sticky">
+            <span class="nav-text-stack">
+              <span class="nav-text nav-text-top">Blog</span>
+              <span class="nav-text nav-text-bottom">Blog</span>
+            </span>
+          </RouterLink>
+          <a href="#join" class="zen-nav-link-sticky join">
+            <span class="nav-text-stack">
+              <span class="nav-text nav-text-top">Join</span>
+              <span class="nav-text nav-text-bottom">Join</span>
+            </span>
+          </a>
+        </nav>
+      </div>
+    </transition>
   </header>
-  <transition name="fade">
-    <div v-if="showSticky" class="zen-header-sticky desktop-only">
-      <span class="zen-logo-sticky">ZEN</span>
-      <nav class="zen-nav-sticky">
-        <a href="#about" class="zen-nav-link-sticky">
-          <span class="nav-text-stack">
-            <span class="nav-text nav-text-top">About</span>
-            <span class="nav-text nav-text-bottom">About</span>
-          </span>
-        </a>
-        <RouterLink to="/leaderboards" class="zen-nav-link-sticky">
-          <span class="nav-text-stack">
-            <span class="nav-text nav-text-top">Leaderboards</span>
-            <span class="nav-text nav-text-bottom">Leaderboards</span>
-          </span>
-        </RouterLink>
-        <RouterLink to="/blog" class="zen-nav-link-sticky">
-          <span class="nav-text-stack">
-            <span class="nav-text nav-text-top">Blog</span>
-            <span class="nav-text nav-text-bottom">Blog</span>
-          </span>
-        </RouterLink>
-        <a href="#join" class="zen-nav-link-sticky join">
-          <span class="nav-text-stack">
-            <span class="nav-text nav-text-top">Join</span>
-            <span class="nav-text nav-text-bottom">Join</span>
-          </span>
-        </a>
-      </nav>
-    </div>
-  </transition>
   <!-- Mobile menu overlay -->
   <transition name="mobile-menu-slide">
     <div v-if="mobileMenuOpen" class="mobile-menu-overlay" @click.self="closeMobileMenu">
@@ -568,5 +569,68 @@ onUnmounted(() => {
 }
 .hamburger.mobile-only {
   display: none;
+}
+.zen-header-sticky {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  z-index: 1200;
+  background: var(--color-background);
+  border-bottom: 2.5px solid var(--color-border);
+  box-shadow: 0 2px 16px 0 rgba(0, 0, 0, 0.13);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2.5rem;
+  height: 64px;
+  pointer-events: none;
+}
+.zen-header-sticky > * {
+  pointer-events: auto;
+}
+.zen-logo-sticky {
+  font-family: 'Supercell Magic', Impact, 'Segoe UI', Arial, sans-serif;
+  font-size: 2.1rem;
+  color: var(--color-primary);
+  letter-spacing: 0.2em;
+  text-shadow:
+    2px 2px 0 var(--color-gold),
+    0 2px 8px #0008;
+  font-weight: bold;
+  user-select: none;
+  line-height: 1;
+  margin-right: 2.5rem;
+}
+.zen-nav-sticky {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+.zen-nav-link-sticky {
+  color: var(--color-heading);
+  font-size: 1.45rem;
+  font-weight: 700;
+  text-decoration: none;
+  letter-spacing: 1.5px;
+  padding: 0.2rem 1.1rem;
+  border-radius: 1.5rem;
+  border: 2px solid transparent;
+  background: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+  flex: 1 1 0;
+  transition: none;
+}
+.zen-nav-link-sticky.join {
+  color: var(--color-primary);
+  font-weight: 900;
+  letter-spacing: 2px;
 }
 </style>
