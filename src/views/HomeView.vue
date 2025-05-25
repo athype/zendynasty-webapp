@@ -1,10 +1,16 @@
 <script setup>
-// You can add logic for the Join button here if needed
+//import AboutComponent from '@/components/AboutComponent.vue'
+import AboutComponentPrimeCarousel from '@/components/AboutComponentPrimeCarousel.vue'
+import ScrollDownComponent from '@/components/ScrollDownComponent.vue'
 </script>
 
 <template>
+  <div id="about">
+    <ScrollDownComponent />
+    <AboutComponentPrimeCarousel />
+  </div>
   <main class="landing-container">
-    <div class="landing-content">
+    <div id="join" class="landing-content">
       <h1 class="landing-title">Zen Dynasty</h1>
       <p class="landing-subtitle">A Clash of Clans Discord Community</p>
       <a href="https://discord.gg/mQ3u9cps3G" class="join-btn" target="_blank" rel="noopener">
@@ -20,6 +26,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
   background: var(--color-background);
 }
 
