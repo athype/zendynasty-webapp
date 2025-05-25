@@ -2,7 +2,9 @@
   <header class="zen-header">
     <div class="zen-header-grid">
       <div class="zen-header-left">
-        <span class="zen-logo">ZEN</span>
+        <RouterLink to="/">
+          <span class="zen-logo">ZEN</span>
+        </RouterLink>
       </div>
       <div class="zen-header-right">
         <nav class="zen-nav desktop-only">
@@ -14,8 +16,8 @@
           </a>
           <RouterLink to="/leaderboard" class="zen-nav-link">
             <span class="nav-text-stack">
-              <span class="nav-text nav-text-top">Leaderboards</span>
-              <span class="nav-text nav-text-bottom">Leaderboards</span>
+              <span class="nav-text nav-text-top">League</span>
+              <span class="nav-text nav-text-bottom">League</span>
             </span>
           </RouterLink>
           <RouterLink to="/blog" class="zen-nav-link">
@@ -50,7 +52,9 @@
     <!-- Restore sticky header markup here, outside .zen-header-grid -->
     <transition name="fade">
       <div v-if="showSticky" class="zen-header-sticky desktop-only">
-        <span class="zen-logo-sticky">ZEN</span>
+        <RouterLink to="/">
+          <span class="zen-logo-sticky">ZEN</span>
+        </RouterLink>
         <nav class="zen-nav-sticky">
           <a href="#about" class="zen-nav-link-sticky">
             <span class="nav-text-stack">
@@ -60,8 +64,8 @@
           </a>
           <RouterLink to="/leaderboard" class="zen-nav-link-sticky">
             <span class="nav-text-stack">
-              <span class="nav-text nav-text-top">Leaderboards</span>
-              <span class="nav-text nav-text-bottom">Leaderboards</span>
+              <span class="nav-text nav-text-top">League</span>
+              <span class="nav-text nav-text-bottom">League</span>
             </span>
           </RouterLink>
           <RouterLink to="/blog" class="zen-nav-link-sticky">
@@ -114,7 +118,7 @@ const mobileMenuOpen = ref(false)
 
 const mobileNavItems = [
   { text: 'About', to: '/#about', class: '' },
-  { text: 'Leaderboards', to: '/leaderboards', class: '' },
+  { text: 'League', to: '/leaderboards', class: '' },
   { text: 'Blog', to: '/blog', class: '' },
   { text: 'Join', to: '/#join', class: 'join' },
 ]

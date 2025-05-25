@@ -20,7 +20,7 @@ a,
 
 @media (hover: hover) {
   a:hover {
-    background-color: rgba(237, 28, 36, 0.2);
+    /* background-color: rgba(237, 28, 36, 0.2); */
   }
 }
 
