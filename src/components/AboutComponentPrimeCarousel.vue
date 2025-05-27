@@ -1,4 +1,5 @@
 <script setup>
+import ScrollDownComponent from '@/components/ScrollDownComponent.vue'
 import 'vue3-carousel/carousel.css'
 import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel'
 import { ref } from 'vue'
@@ -16,7 +17,7 @@ const achievements = ref([
   },
   {
     title: 'Big clan family',
-    description: 'Ovewr 10 clans in total with multiple war, farm and event clans.',
+    description: 'Over 10 clans in total with multiple war, farm and event clans.',
     image: '/zenicon.png',
   },
   {
@@ -70,9 +71,6 @@ const carouselConfig = {
 
 <template>
   <div class="card">
-    <h2 class="card-title">Our Achievements</h2>
-    <p class="card-desc">Proudly showcasing our clan's top achievements and milestones.</p>
-
     <Carousel v-bind="carouselConfig">
       <Slide v-for="achievement in achievements" :key="achievement.title">
         <div class="achievement-wrapper">
@@ -90,11 +88,19 @@ const carouselConfig = {
       </template>
     </Carousel>
   </div>
+  <div class="scroll-down-indicator">
+    <ScrollDownComponent />
+  </div>
 </template>
 
 <style scoped>
 .card {
+  padding: 1.5rem;
   background: var(--color-background);
+}
+
+.scroll-down-indicator {
+  padding: 0rem;
 }
 
 .card-title {

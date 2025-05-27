@@ -8,9 +8,6 @@ import ScrollDownComponent from '@/components/ScrollDownComponent.vue'
   <div id="about">
     <AboutComponentPrimeCarousel />
   </div>
-  <div class="scroll-down">
-    <ScrollDownComponent />
-  </div>
   <main class="landing-container">
     <div id="join" class="landing-content">
       <h1 class="landing-title">Zen Dynasty</h1>

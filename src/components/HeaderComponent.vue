@@ -174,7 +174,7 @@ onUnmounted(() => {
 .zen-header-left {
   display: flex;
   flex: 1;
-  overflow: auto;
+  overflow: hidden;
   align-items: center;
   justify-content: center;
   background: var(--color-background);

@@ -1,6 +1,5 @@
 <template>
   <div class="scroll-down-indicator desktop-only">
-    <span>Scroll down for more</span>
     <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
         d="M8 12L16 20L24 12"
@@ -17,8 +16,7 @@
 .scroll-down-indicator {
   position: absolute;
   left: 50%;
-  bottom: 3.5rem;
-  transform: translateX(-50%);
+  transform: translateX(-40%);
   display: flex;
   flex-direction: column;
   align-items: center;
