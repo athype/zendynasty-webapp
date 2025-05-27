@@ -1,7 +1,6 @@
 <script setup>
 //import AboutComponent from '@/components/AboutComponent.vue'
 import AboutComponentPrimeCarousel from '@/components/AboutComponentPrimeCarousel.vue'
-import ScrollDownComponent from '@/components/ScrollDownComponent.vue'
 </script>
 
 <template>
@@ -81,5 +80,4 @@ import ScrollDownComponent from '@/components/ScrollDownComponent.vue'
   transform: translateY(-2px) scale(1.04);
   box-shadow: 0 4px 24px 0 rgba(237, 28, 36, 0.35);
 }
-
 </style>

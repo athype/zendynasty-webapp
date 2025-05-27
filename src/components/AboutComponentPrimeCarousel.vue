@@ -43,11 +43,10 @@ const achievements = ref([
 ])
 
 const carouselConfig = {
-  itemsToShow: 1,
   wrapAround: true,
   autoplay: 4000,
   pauseAutoplayOnHover: true,
-  gap: 20,
+  gap: 0,
   transition: 500,
   snapAlign: 'center',
   mouseDrag: true,
@@ -62,7 +61,7 @@ const carouselConfig = {
       snapAlign: 'center',
     },
     1400: {
-      itemsToShow: 2.5,
+      itemsToShow: 3,
       snapAlign: 'center',
     },
   },
@@ -71,7 +70,17 @@ const carouselConfig = {
 
 <template>
   <div class="card">
-    <Carousel v-bind="carouselConfig">
+    <Carousel
+      :wrap-around="carouselConfig.wrapAround"
+      :autoplay="carouselConfig.autoplay"
+      :pause-autoplay-on-hover="carouselConfig.pauseAutoplayOnHover"
+      :gap="carouselConfig.gap"
+      :transition="carouselConfig.transition"
+      :snap-align="carouselConfig.snapAlign"
+      :mouse-drag="carouselConfig.mouseDrag"
+      :touch-drag="carouselConfig.touchDrag"
+      :breakpoints="carouselConfig.breakpoints"
+    >
       <Slide v-for="achievement in achievements" :key="achievement.title">
         <div class="achievement-wrapper">
           <div class="achievement-image-container">
@@ -118,7 +127,7 @@ const carouselConfig = {
 
 /* Achievement card styling */
 .achievement-wrapper {
-  margin: 0 0.25rem; /* Reduced from 0.5rem to 0.25rem */
+  margin: 0 0.25rem;
   padding: 1.5rem;
   border: 1px solid var(--color-border);
   border-radius: 12px;

@@ -42,9 +42,7 @@
           <span></span><span></span><span></span>
         </button>
         <div class="zen-header-desc desktop-only">
-          <span
-            >Zen Dynasty, semi-competitive & competitive family of clans.</span
-          >
+          <span>Zen Dynasty, semi-competitive & competitive family of clans.</span>
         </div>
       </div>
     </div>
@@ -324,14 +322,14 @@ onUnmounted(() => {
   height: 100%;
 }
 
-@media (max-width: 1600px) and (min-width: 1201px) {
+@media (min-width: 1201px) {
   .zen-header {
-    min-height: min(45vh, 450px);
-    max-height: min(45vh, 500px);
+    min-height: min(45vh);
+    max-height: min(99vh);
   }
   .zen-header-grid {
     min-height: min(44vh);
-    max-height: min(44vh);
+    max-height: min(99vh);
   }
   .zen-header-left {
     height: 100%;
