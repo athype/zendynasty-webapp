@@ -94,7 +94,6 @@ const carouselConfig = {
 
 <style scoped>
 .card {
-  padding: 2rem;
   background: var(--color-background);
 }
 

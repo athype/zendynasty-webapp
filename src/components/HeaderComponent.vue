@@ -43,8 +43,7 @@
         </button>
         <div class="zen-header-desc desktop-only">
           <span
-            >Zen Dynasty is a social, semi-competitive & competitive family of clans that values
-            active game play, communication, helping each other improve, and teamwork.</span
+            >Zen Dynasty, semi-competitive & competitive family of clans.</span
           >
         </div>
       </div>
@@ -153,7 +152,7 @@ onUnmounted(() => {
 .zen-header {
   width: 100vw;
   min-height: 50vh;
-  max-height: 60vh;
+  max-height: 50vh;
   display: block;
   background: var(--color-background);
   border-bottom: 3px solid var(--color-border);
@@ -168,12 +167,14 @@ onUnmounted(() => {
   grid-template-rows: 1fr;
   width: 100vw;
   height: 100%;
-  min-height: 50vh;
-  max-height: 60vh;
+  min-height: min(50vh, 400px);
+  max-height: min(50vh, 500px);
 }
 
 .zen-header-left {
   display: flex;
+  flex: 1;
+  overflow: auto;
   align-items: center;
   justify-content: center;
   background: var(--color-background);
@@ -203,10 +204,13 @@ onUnmounted(() => {
   justify-items: stretch;
   height: 100%;
   background: var(--color-background);
+  overflow: auto;
 }
 
 .zen-nav {
   display: flex;
+  flex: 1;
+  overflow: auto;
   justify-content: space-evenly;
   align-items: center;
   font-size: 1.45rem;
@@ -305,7 +309,7 @@ onUnmounted(() => {
 
 .zen-header-desc {
   color: var(--color-heading);
-  font-size: 2.5rem;
+  font-size: 2.2rem;
   font-style: bold;
   font-weight: 600;
   text-shadow: 1.5px 1.5px 0 #000a;
@@ -313,9 +317,63 @@ onUnmounted(() => {
   text-align: left;
   padding: 2.2rem 2rem 2.2rem 2rem;
   display: flex;
+  flex: 1;
+  overflow: auto;
   align-items: flex-start;
   justify-content: center;
   height: 100%;
+}
+
+@media (max-width: 1600px) and (min-width: 1201px) {
+  .zen-header {
+    min-height: min(45vh, 450px);
+    max-height: min(45vh, 500px);
+  }
+  .zen-header-grid {
+    min-height: min(44vh);
+    max-height: min(44vh);
+  }
+  .zen-header-left {
+    height: 100%;
+  }
+  .zen-header-right {
+    height: 100%;
+  }
+}
+
+@media (max-width: 1200px) {
+  .zen-header {
+    min-height: min(40vh, 350px);
+    max-height: min(40vh, 400px);
+  }
+  .zen-header-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    height: auto;
+  }
+  .zen-header-left {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    padding-left: 0.5rem;
+  }
+  .zen-header-right {
+    padding-right: 0.5rem;
+  }
+  .zen-logo {
+    font-size: 12vw;
+    text-align: center;
+  }
+
+  .zen-header-desc {
+    display: flex;
+    font-size: 1.5rem;
+    flex: 1;
+    padding: 1.5rem 1.5rem 1.5rem 1.5rem;
+    text-align: center;
+    max-width: 90%;
+    overflow: auto;
+  }
 }
 
 @media (max-width: 900px) {

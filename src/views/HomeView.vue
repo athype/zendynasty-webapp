@@ -6,8 +6,10 @@ import ScrollDownComponent from '@/components/ScrollDownComponent.vue'
 
 <template>
   <div id="about">
-    <ScrollDownComponent />
     <AboutComponentPrimeCarousel />
+  </div>
+  <div class="scroll-down">
+    <ScrollDownComponent />
   </div>
   <main class="landing-container">
     <div id="join" class="landing-content">
@@ -82,4 +84,5 @@ import ScrollDownComponent from '@/components/ScrollDownComponent.vue'
   transform: translateY(-2px) scale(1.04);
   box-shadow: 0 4px 24px 0 rgba(237, 28, 36, 0.35);
 }
+
 </style>
