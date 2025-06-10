@@ -1,0 +1,9 @@
+# Handle SPA routing - redirect all routes to index.html
+/*    /index.html   200
+
+# Specific handling for auth callback
+/auth/callback    /index.html   200
+/auth/*           /index.html   200
+
+# Handle API routes (if any are served by the same server)
+/api/*    /api/:splat   200

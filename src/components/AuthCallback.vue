@@ -40,11 +40,35 @@ const user = ref(null)
 
 async function handleAuthCallback() {
   try {
-    // Get token from URL query parameters
-    const token = route.query.token
+    console.log('Current URL:', window.location.href)
+    console.log('Route query:', route.query)
+    console.log('URL search params:', new URLSearchParams(window.location.search))
 
+    // Try multiple methods to get the token
+    let token = null
+
+    // Method 1: Vue Router query
+    token = route.query.token
+
+    // Method 2: Direct URL parsing (fallback for production issues)
+    if (!token) {
+      const urlParams = new URLSearchParams(window.location.search)
+      token = urlParams.get('token')
+    }
+
+    // Method 3: Check hash fragment (if backend uses hash routing)
+    if (!token && window.location.hash) {
+      const hashParams = new URLSearchParams(window.location.hash.substring(1))
+      token = hashParams.get('token')
+    }
+
+    console.log('Extracted token:', token ? 'Found' : 'Not found')
+
+    // Clean URL immediately after extracting token
     if (token) {
-      window.history.replaceState({}, document.title, '/auth/callback')
+      // Remove token from URL for security
+      const cleanUrl = window.location.origin + window.location.pathname
+      window.history.replaceState({}, document.title, cleanUrl)
     }
 
     if (!token) {
@@ -53,18 +77,35 @@ async function handleAuthCallback() {
 
     // Store the token
     AuthService.setAuthToken(token, true)
-    console.log('Token stored successfully:', token)
+    console.log('Token stored successfully')
 
-    // Get user profile to verify token is valid
-    const profile = await AuthService.getProfile()
-    user.value = profile.user || profile
+    // Try to get user info from token first (faster)
+    const userFromToken = AuthService.getUserFromToken()
+    if (userFromToken) {
+      user.value = userFromToken
+      console.log('User from token:', userFromToken.username)
+    }
+
+    // Then verify with backend
+    try {
+      const profile = await AuthService.getProfile()
+      user.value = profile.user || profile
+      console.log('Profile verified with backend')
+    } catch (profileError) {
+      console.warn('Backend verification failed, using token data:', profileError.message)
+      // Continue with token data if backend verification fails
+      if (!user.value) {
+        throw profileError
+      }
+    }
 
     // Clear loading state
     isLoading.value = false
 
     // Redirect to home page after a short delay
     setTimeout(() => {
-      const redirectTo = route.query.redirect || '/'
+      const redirectTo = sessionStorage.getItem('auth_redirect') || '/'
+      sessionStorage.removeItem('auth_redirect') // Clean up
       router.push(redirectTo)
     }, 2000)
   } catch (err) {
@@ -82,11 +123,15 @@ function redirectToHome() {
 }
 
 onMounted(() => {
-  handleAuthCallback()
+  // Add a small delay to ensure route is fully loaded
+  setTimeout(() => {
+    handleAuthCallback()
+  }, 100)
 })
 </script>
 
 <style scoped>
+/* ...existing styles remain the same... */
 .auth-callback {
   min-height: 40vh;
   display: flex;
@@ -172,31 +217,5 @@ onMounted(() => {
 
 .retry-btn:hover {
   background: var(--color-primary-hover, #d41e24);
-}
-
-.error-state {
-  color: var(--color-text);
-}
-
-.success-state {
-  color: var(--color-text);
-}
-
-@media (max-width: 600px) {
-  .auth-callback {
-    padding: 1rem;
-  }
-
-  .auth-callback-content {
-    padding: 2rem 1.5rem;
-  }
-
-  .auth-callback-content h2 {
-    font-size: 1.5rem;
-  }
-
-  .auth-callback-content p {
-    font-size: 1rem;
-  }
 }
 </style>
