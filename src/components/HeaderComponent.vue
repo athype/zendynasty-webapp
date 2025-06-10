@@ -8,12 +8,16 @@
       </div>
       <div class="zen-header-right">
         <nav class="zen-nav desktop-only">
-          <a href="#about" class="zen-nav-link">
-            <span class="nav-text-stack">
-              <span class="nav-text nav-text-top">About</span>
-              <span class="nav-text nav-text-bottom">About</span>
+          <button @click="handleLogin" class="zen-nav-link login-btn">
+            <span class="nav-text-stack" v-if="!user">
+              <span class="nav-text nav-text-top">Login</span>
+              <span class="nav-text nav-text-bottom">Login</span>
             </span>
-          </a>
+            <span class="nav-text-stack" v-else>
+              <span class="nav-text nav-text-top">{{ user.username }}</span>
+              <span class="nav-text nav-text-bottom">Profile</span>
+            </span>
+          </button>
           <RouterLink to="/leaderboard" class="zen-nav-link">
             <span class="nav-text-stack">
               <span class="nav-text nav-text-top">League</span>
@@ -46,19 +50,23 @@
         </div>
       </div>
     </div>
-    <!-- Restore sticky header markup here, outside .zen-header-grid -->
+    <!-- Sticky header -->
     <transition name="fade">
       <div v-if="showSticky" class="zen-header-sticky desktop-only">
         <RouterLink to="/">
           <span class="zen-logo-sticky">ZEN</span>
         </RouterLink>
         <nav class="zen-nav-sticky">
-          <a href="#about" class="zen-nav-link-sticky">
-            <span class="nav-text-stack">
-              <span class="nav-text nav-text-top">About</span>
-              <span class="nav-text nav-text-bottom">About</span>
+          <button @click="handleLogin" class="zen-nav-link-sticky login-btn">
+            <span class="nav-text-stack" v-if="!user">
+              <span class="nav-text nav-text-top">Login</span>
+              <span class="nav-text nav-text-bottom">Login</span>
             </span>
-          </a>
+            <span class="nav-text-stack" v-else>
+              <span class="nav-text nav-text-top">{{ user.username }}</span>
+              <span class="nav-text nav-text-bottom">Profile</span>
+            </span>
+          </button>
           <RouterLink to="/leaderboard" class="zen-nav-link-sticky">
             <span class="nav-text-stack">
               <span class="nav-text nav-text-top">League</span>
@@ -87,6 +95,26 @@
       <div class="mobile-menu-content">
         <nav class="mobile-nav">
           <transition-group name="mobile-nav-link-fade" tag="div">
+            <button
+              v-if="!user"
+              key="login"
+              @click="handleLogin"
+              class="mobile-nav-link login-btn"
+              :style="{ transitionDelay: (mobileMenuOpen ? 0 * 80 : 0) + 'ms' }"
+            >
+              <span class="mobile-nav-text">Login</span>
+              <span class="mobile-underline"></span>
+            </button>
+            <button
+              v-else
+              key="profile"
+              @click="handleProfileClick"
+              class="mobile-nav-link login-btn"
+              :style="{ transitionDelay: (mobileMenuOpen ? 0 * 80 : 0) + 'ms' }"
+            >
+              <span class="mobile-nav-text">{{ user.username }}</span>
+              <span class="mobile-underline"></span>
+            </button>
             <RouterLink
               v-for="(item, idx) in mobileNavItems"
               :key="item.text"
@@ -94,7 +122,7 @@
               class="mobile-nav-link"
               :class="item.class"
               @click="closeMobileMenu"
-              :style="{ transitionDelay: (mobileMenuOpen ? idx * 80 : 0) + 'ms' }"
+              :style="{ transitionDelay: (mobileMenuOpen ? (idx + 1) * 80 : 0) + 'ms' }"
             >
               <span class="mobile-nav-text">{{ item.text }}</span>
               <span class="mobile-underline"></span>
@@ -107,18 +135,75 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
-import { RouterLink } from 'vue-router'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { RouterLink, useRouter } from 'vue-router'
+import { AuthService } from '@/services/authService'
 
+const router = useRouter()
 const showSticky = ref(false)
 const mobileMenuOpen = ref(false)
+const user = ref(null)
 
 const mobileNavItems = [
-  { text: 'About', to: '/#about', class: '' },
   { text: 'League', to: '/leaderboards', class: '' },
   { text: 'Blog', to: '/blog', class: '' },
   { text: 'Join', to: '/#join', class: 'join' },
 ]
+
+async function handleLogin() {
+  if (!user.value) {
+    // User is not logged in, initiate Discord OAuth
+    try {
+      AuthService.initiateDiscordAuth()
+    } catch (error) {
+      console.error('Login failed:', error.message)
+    }
+  } else {
+    // User is logged in, show profile or logout options
+    handleProfileClick()
+  }
+  closeMobileMenu()
+}
+
+function handleProfileClick() {
+  // You can implement a profile dropdown or navigate to profile page
+  // For now, let's show a simple logout option
+  if (confirm('Would you like to logout?')) {
+    handleLogout()
+  }
+  closeMobileMenu()
+}
+
+async function handleLogout() {
+  try {
+    await AuthService.logout()
+    user.value = null
+    console.log('Logged out successfully')
+    router.push('/') // Redirect to home after logout
+  } catch (error) {
+    console.error('Logout failed:', error.message)
+  }
+}
+
+async function checkAuthStatus() {
+  try {
+    if (AuthService.isAuthenticated()) {
+      const profile = await AuthService.getProfile()
+      user.value = profile.user || profile
+    } else {
+      // Try to get user from token if available
+      const userFromToken = AuthService.getUserFromToken()
+      if (userFromToken) {
+        user.value = userFromToken
+      } else {
+        user.value = null
+      }
+    }
+  } catch (error) {
+    console.error('Auth check failed:', error.message)
+    user.value = null
+  }
+}
 
 function handleScroll() {
   const header = document.querySelector('.zen-header')
@@ -130,16 +215,29 @@ function handleScroll() {
 function openMobileMenu() {
   mobileMenuOpen.value = true
 }
+
 function closeMobileMenu() {
   mobileMenuOpen.value = false
 }
+
 function handleKeydown(e) {
   if (e.key === 'Escape') closeMobileMenu()
 }
+
+// Watch for route changes to update auth status
+watch(
+  () => router.currentRoute.value,
+  () => {
+    checkAuthStatus()
+  },
+)
+
 onMounted(() => {
   window.addEventListener('scroll', handleScroll)
   window.addEventListener('keydown', handleKeydown)
+  checkAuthStatus()
 })
+
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
   window.removeEventListener('keydown', handleKeydown)
@@ -220,7 +318,8 @@ onUnmounted(() => {
 }
 
 .zen-nav-link,
-.zen-nav-link-sticky {
+.zen-nav-link-sticky,
+.login-btn {
   color: var(--color-heading);
   font-size: 2.2rem;
   font-weight: 700;
@@ -238,13 +337,21 @@ onUnmounted(() => {
   min-width: 0;
   flex: 1 1 0;
   transition: none;
+  cursor: pointer;
 }
+
+.login-btn {
+  background: none;
+  font-family: inherit;
+}
+
 .nav-text-stack {
   position: relative;
   width: 100%;
   height: 2.6rem;
   display: block;
 }
+
 .nav-text {
   position: absolute;
   left: 0;
@@ -263,6 +370,7 @@ onUnmounted(() => {
   font-size: inherit;
   font-weight: inherit;
 }
+
 .nav-text-top {
   top: 0;
   opacity: 1;
@@ -270,28 +378,35 @@ onUnmounted(() => {
   transform: none;
   pointer-events: auto;
 }
+
 .nav-text-bottom {
   top: 0;
   opacity: 0;
   z-index: 1;
   transform: translateY(100%);
 }
+
 .zen-nav-link:hover .nav-text-top,
 .zen-nav-link-sticky:hover .nav-text-top,
+.login-btn:hover .nav-text-top,
 .zen-nav-link.join:hover .nav-text-top,
 .zen-nav-link-sticky.join:hover .nav-text-top {
   transform: translateY(-100%);
   opacity: 0;
 }
+
 .zen-nav-link:hover .nav-text-bottom,
 .zen-nav-link-sticky:hover .nav-text-bottom,
+.login-btn:hover .nav-text-bottom,
 .zen-nav-link.join:hover .nav-text-bottom,
 .zen-nav-link-sticky.join:hover .nav-text-bottom {
   transform: translateY(0);
   opacity: 1;
 }
+
 .zen-nav-link:hover,
 .zen-nav-link-sticky:hover,
+.login-btn:hover,
 .zen-nav-link.join:hover,
 .zen-nav-link-sticky.join:hover {
   background: none !important;
@@ -299,6 +414,7 @@ onUnmounted(() => {
   color: var(--color-heading);
   box-shadow: none !important;
 }
+
 .zen-nav-link.join,
 .zen-nav-link-sticky.join {
   font-weight: 900;
@@ -477,7 +593,6 @@ onUnmounted(() => {
   .scroll-down-indicator {
     display: none !important;
   }
-  /* Fix mobile menu overlay and close button */
   .mobile-menu-overlay {
     position: fixed;
     top: 0;
@@ -500,17 +615,6 @@ onUnmounted(() => {
     position: relative;
     min-height: 100vh;
   }
-  .close-btn {
-    position: fixed;
-    top: 1.1rem;
-    right: 1.5rem;
-    font-size: 2.2rem;
-    background: none;
-    border: none;
-    color: var(--color-heading);
-    cursor: pointer;
-    z-index: 1400;
-  }
   .mobile-nav {
     display: flex;
     flex-direction: column;
@@ -531,10 +635,15 @@ onUnmounted(() => {
     transition:
       opacity 0.45s cubic-bezier(0.4, 1.5, 0.5, 1),
       transform 0.45s cubic-bezier(0.4, 1.5, 0.5, 1),
-      /* Add transition-delay for staggered effect */ transition-delay 0ms;
+      transition-delay 0ms;
     display: block;
     width: 100%;
     box-sizing: border-box;
+    background: none;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
   }
   .mobile-nav-link-fade-enter-active,
   .mobile-nav-link-fade-leave-active {
@@ -572,9 +681,11 @@ onUnmounted(() => {
     color: var(--color-primary);
   }
 }
+
 .hamburger.mobile-only {
   display: none;
 }
+
 .zen-header-sticky {
   position: fixed;
   top: 0;
@@ -591,9 +702,11 @@ onUnmounted(() => {
   height: 64px;
   pointer-events: none;
 }
+
 .zen-header-sticky > * {
   pointer-events: auto;
 }
+
 .zen-logo-sticky {
   font-family: 'Supercell Magic', Impact, 'Segoe UI', Arial, sans-serif;
   font-size: 2.1rem;
@@ -607,6 +720,7 @@ onUnmounted(() => {
   line-height: 1;
   margin-right: 2.5rem;
 }
+
 .zen-nav-sticky {
   display: flex;
   justify-content: flex-end;
@@ -614,6 +728,7 @@ onUnmounted(() => {
   gap: 0.5rem;
   width: 100%;
 }
+
 .zen-nav-link-sticky {
   color: var(--color-heading);
   font-size: 1.45rem;
@@ -633,6 +748,7 @@ onUnmounted(() => {
   flex: 1 1 0;
   transition: none;
 }
+
 .zen-nav-link-sticky.join {
   color: var(--color-primary);
   font-weight: 900;
