@@ -6,6 +6,7 @@
           <div class="spinner"></div>
           <h2>Completing authentication...</h2>
           <p>Please wait while we log you in.</p>
+          <p class="debug-info">Debug: Component loaded, processing token...</p>
         </div>
 
         <div v-else-if="error" class="error-state">
@@ -27,7 +28,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeMount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { AuthService } from '@/services/authService'
 
@@ -38,7 +39,26 @@ const isLoading = ref(true)
 const error = ref(null)
 const user = ref(null)
 
+// Add component lifecycle logging
+console.log('AuthCallback component script loaded')
+
+onBeforeMount(() => {
+  console.log('AuthCallback onBeforeMount called')
+})
+
+onMounted(() => {
+  console.log('AuthCallback onMounted called')
+  console.log('Route params:', route.params)
+  console.log('Route query:', route.query)
+  console.log('Current URL:', window.location.href)
+
+  // Immediate execution without timeout
+  handleAuthCallback()
+})
+
 async function handleAuthCallback() {
+  console.log('handleAuthCallback function called')
+
   try {
     console.log('Current URL:', window.location.href)
     console.log('Route query:', route.query)
@@ -49,26 +69,31 @@ async function handleAuthCallback() {
 
     // Method 1: Vue Router query
     token = route.query.token
+    console.log('Method 1 - Vue Router query token:', token)
 
     // Method 2: Direct URL parsing (fallback for production issues)
     if (!token) {
       const urlParams = new URLSearchParams(window.location.search)
       token = urlParams.get('token')
+      console.log('Method 2 - Direct URL parsing token:', token)
     }
 
     // Method 3: Check hash fragment (if backend uses hash routing)
     if (!token && window.location.hash) {
       const hashParams = new URLSearchParams(window.location.hash.substring(1))
       token = hashParams.get('token')
+      console.log('Method 3 - Hash fragment token:', token)
     }
 
-    console.log('Extracted token:', token ? 'Found' : 'Not found')
+    console.log('Final extracted token:', token ? 'Found' : 'Not found')
 
     // Clean URL immediately after extracting token
     if (token) {
+      console.log('Cleaning URL...')
       // Remove token from URL for security
       const cleanUrl = window.location.origin + window.location.pathname
       window.history.replaceState({}, document.title, cleanUrl)
+      console.log('URL cleaned to:', cleanUrl)
     }
 
     if (!token) {
@@ -76,6 +101,7 @@ async function handleAuthCallback() {
     }
 
     // Store the token
+    console.log('Storing token...')
     AuthService.setAuthToken(token, true)
     console.log('Token stored successfully')
 
@@ -88,9 +114,10 @@ async function handleAuthCallback() {
 
     // Then verify with backend
     try {
+      console.log('Verifying with backend...')
       const profile = await AuthService.getProfile()
       user.value = profile.user || profile
-      console.log('Profile verified with backend')
+      console.log('Profile verified with backend:', user.value)
     } catch (profileError) {
       console.warn('Backend verification failed, using token data:', profileError.message)
       // Continue with token data if backend verification fails
@@ -100,12 +127,15 @@ async function handleAuthCallback() {
     }
 
     // Clear loading state
+    console.log('Clearing loading state...')
     isLoading.value = false
 
     // Redirect to home page after a short delay
+    console.log('Setting up redirect...')
     setTimeout(() => {
       const redirectTo = sessionStorage.getItem('auth_redirect') || '/'
       sessionStorage.removeItem('auth_redirect') // Clean up
+      console.log('Redirecting to:', redirectTo)
       router.push(redirectTo)
     }, 2000)
   } catch (err) {
@@ -119,21 +149,14 @@ async function handleAuthCallback() {
 }
 
 function redirectToHome() {
+  console.log('Manual redirect to home triggered')
   router.push('/')
 }
-
-onMounted(() => {
-  // Add a small delay to ensure route is fully loaded
-  setTimeout(() => {
-    handleAuthCallback()
-  }, 100)
-})
 </script>
 
 <style scoped>
-/* ...existing styles remain the same... */
 .auth-callback {
-  min-height: 40vh;
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -162,6 +185,12 @@ onMounted(() => {
   flex-direction: column;
   align-items: center;
   gap: 1rem;
+}
+
+.debug-info {
+  font-size: 0.9rem;
+  color: var(--color-text-muted, #666);
+  font-style: italic;
 }
 
 .spinner {

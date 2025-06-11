@@ -16,31 +16,9 @@ const router = createRouter({
       path: '/auth/callback',
       name: 'auth-callback',
       component: AuthCallback,
-    },
-    {
-      path: '/#about',
-      name: 'about',
-      component: HomeView,
-      beforeEnter: (to, from, next) => {
-        // Scroll to the element with id 'about' when navigating to this route
-        const element = document.getElementById('about')
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth' })
-        }
-        next()
-      },
-    },
-    {
-      path: '/#join',
-      name: 'join',
-      component: HomeView,
-      beforeEnter: (to, from, next) => {
-        // Scroll to the element with id 'join' when navigating to this route
-        const element = document.getElementById('join')
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth' })
-        }
-        next()
+      meta: {
+        hideHeader: true,
+        hideFooter: true,
       },
     },
     {
@@ -64,6 +42,35 @@ const router = createRouter({
       },
     },
   ],
+  // Add scroll behavior for hash links
+  scrollBehavior(to, from, savedPosition) {
+    if (to.hash) {
+      return {
+        el: to.hash,
+        behavior: 'smooth',
+      }
+    }
+    if (savedPosition) {
+      return savedPosition
+    }
+    return { top: 0 }
+  },
+})
+
+// Add navigation guard for debugging
+router.beforeEach((to, from, next) => {
+  console.log('Router navigation:', {
+    to: to.path,
+    from: from.path,
+    name: to.name,
+  })
+
+  // Special handling for auth callback
+  if (to.path === '/auth/callback') {
+    console.log('Navigating to auth callback with query:', to.query)
+  }
+
+  next()
 })
 
 export default router
