@@ -97,6 +97,14 @@
         </div>
         <p class="disclaimer">
           Zen Dynasty is not affiliated with Supercell. Clash of Clans is a trademark of Supercell.
+          This content is not affiliated with, endorsed, sponsored, or specifically approved by
+          Supercell and Supercell is not responsible for it. For more information, see
+          <a
+            href="https://supercell.com/en/fan-content-policy/"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Supercell's fan content policy</a
+          >.
         </p>
       </div>
     </div>
