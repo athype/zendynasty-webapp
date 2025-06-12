@@ -17,18 +17,29 @@ app.get('/discord', (req, res) => {
 // Serve static files
 app.use(express.static(join(__dirname, 'dist')))
 
-// Handle SPA routes manually
-const spaRoutes = ['/auth/callback', '/blog', '/leaderboard', '/']
-
-spaRoutes.forEach((route) => {
-  app.get(route, (req, res) => {
-    console.log(`Serving index.html for route: ${route}`)
-    res.sendFile(join(__dirname, 'dist', 'index.html'))
-  })
+// Handle specific SPA routes
+app.get('/auth/callback', (req, res) => {
+  console.log('Serving index.html for route: /auth/callback')
+  res.sendFile(join(__dirname, 'dist', 'index.html'))
 })
 
-// Fallback for any other routes
-app.get('*', (req, res) => {
+app.get('/blog', (req, res) => {
+  console.log('Serving index.html for route: /blog')
+  res.sendFile(join(__dirname, 'dist', 'index.html'))
+})
+
+app.get('/leaderboard', (req, res) => {
+  console.log('Serving index.html for route: /leaderboard')
+  res.sendFile(join(__dirname, 'dist', 'index.html'))
+})
+
+app.get('/', (req, res) => {
+  console.log('Serving index.html for route: /')
+  res.sendFile(join(__dirname, 'dist', 'index.html'))
+})
+
+// Fallback for any other routes - use a more specific pattern
+app.use((req, res) => {
   console.log(`Serving fallback for route: ${req.url}`)
   res.sendFile(join(__dirname, 'dist', 'index.html'))
 })
