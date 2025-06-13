@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { AuthService } from '@/services/authService'
+import { LinkService } from '@/services/linkService'
 import LinkedAccountsTable from '@/components/LinkedAccountsTable.vue'
 
 const router = useRouter()
@@ -9,28 +10,8 @@ const route = useRoute()
 const user = ref(null)
 const linkedAccounts = ref([])
 const loadingAccounts = ref(false)
-
-// Dummy data for development
-const dummyAccounts = [
-  {
-    tag: '#2PP0JQVQ0',
-    name: 'AthypeW',
-    townhall: 17,
-    id: 1,
-  },
-  {
-    tag: '#LU2Q8QRR',
-    name: 'Medzsi',
-    townhall: 15,
-    id: 2,
-  },
-  {
-    tag: '#89YGPL0QJ',
-    name: 'Athype',
-    townhall: 13,
-    id: 3,
-  },
-]
+const autoImportInfo = ref(null)
+const error = ref(null)
 
 async function loadUserProfile() {
   try {
@@ -57,20 +38,39 @@ async function loadUserProfile() {
 }
 
 async function handleGetLinkedAccounts() {
-  loadingAccounts.value = true
-  try {
-    // TODO: Replace with actual API call
-    // const response = await apiClient.get(`/users/${user.value.discord_id}/linked-accounts`)
-    // linkedAccounts.value = response.data.accounts || []
+  if (!AuthService.isAuthenticated()) {
+    error.value = 'Please log in to view linked accounts'
+    return
+  }
 
-    // For now, use dummy data
-    await new Promise((resolve) => setTimeout(resolve, 1000)) // Simulate API call
-    linkedAccounts.value = dummyAccounts
+  loadingAccounts.value = true
+  error.value = null
+
+  try {
+    console.log('Fetching linked players from API...')
+    const response = await LinkService.getMyLinkedPlayers()
+
+    // Transform the API response to match table format
+    linkedAccounts.value = LinkService.formatLinkedPlayersForTable(response.linkedPlayers)
+    autoImportInfo.value = response.autoImport
 
     console.log('Linked accounts loaded:', linkedAccounts.value)
-  } catch (error) {
-    console.error('Failed to load linked accounts:', error)
-    // Handle error - maybe show a toast notification
+
+    // Show auto-import info if available
+    if (autoImportInfo.value) {
+      console.log('Auto-import info:', autoImportInfo.value)
+      if (autoImportInfo.value.attempted && autoImportInfo.value.imported > 0) {
+        // You could show a toast notification here
+        console.log(`Auto-imported ${autoImportInfo.value.imported} players`)
+      }
+      if (autoImportInfo.value.errors && autoImportInfo.value.errors.length > 0) {
+        console.warn('Auto-import errors:', autoImportInfo.value.errors)
+      }
+    }
+  } catch (err) {
+    console.error('Failed to load linked accounts:', err)
+    error.value = err.message
+    linkedAccounts.value = []
   } finally {
     loadingAccounts.value = false
   }
@@ -98,8 +98,8 @@ function getDiscordAvatarUrl(discordId, avatarHash) {
 
 onMounted(() => {
   loadUserProfile()
-  // Load dummy accounts on mount for development
-  linkedAccounts.value = dummyAccounts
+  // Automatically load linked accounts on mount
+  handleGetLinkedAccounts()
 })
 </script>
 
@@ -130,10 +130,37 @@ onMounted(() => {
 
       <!-- Profile Actions -->
       <div class="profile-actions">
-        <button @click="handleGetLinkedAccounts" class="btn btn-primary">
-          Get Linked Accounts
+        <button
+          @click="handleGetLinkedAccounts"
+          class="btn btn-primary"
+          :disabled="loadingAccounts"
+        >
+          <span v-if="loadingAccounts">Loading...</span>
+          <span v-else>{{ linkedAccounts.length > 0 ? 'Refresh' : 'Get' }} Linked Accounts</span>
         </button>
         <button @click="handleLogout" class="btn btn-secondary">Logout</button>
+      </div>
+
+      <!-- Error Message -->
+      <div v-if="error" class="error-message">
+        <p>{{ error }}</p>
+        <button @click="handleGetLinkedAccounts" class="btn btn-outline btn-small">
+          Try Again
+        </button>
+      </div>
+
+      <!-- Auto-Import Info -->
+      <div v-if="autoImportInfo && autoImportInfo.attempted" class="auto-import-info">
+        <h3>Auto-Import Results</h3>
+        <p v-if="autoImportInfo.imported > 0" class="success-message">
+          ✅ Successfully imported {{ autoImportInfo.imported }} player(s)
+        </p>
+        <div v-if="autoImportInfo.errors && autoImportInfo.errors.length > 0" class="error-list">
+          <p class="error-title">⚠️ Import Errors:</p>
+          <ul>
+            <li v-for="error in autoImportInfo.errors" :key="error">{{ error }}</li>
+          </ul>
+        </div>
       </div>
 
       <!-- Linked Accounts Section -->
@@ -270,12 +297,17 @@ onMounted(() => {
   gap: 0.5rem;
 }
 
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .btn-primary {
   background: var(--color-primary);
   color: white;
 }
 
-.btn-primary:hover {
+.btn-primary:hover:not(:disabled) {
   background: var(--color-primary-hover, #d41e24);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(239, 35, 35, 0.3);
@@ -290,6 +322,69 @@ onMounted(() => {
   background: var(--color-text);
   color: var(--color-background);
   transform: translateY(-2px);
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+}
+
+.btn-outline:hover {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+.btn-small {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+}
+
+.error-message {
+  padding: 1.5rem 2rem;
+  background: #fee;
+  border: 1px solid #fcc;
+  border-left: 4px solid #f00;
+  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.error-message p {
+  margin: 0;
+  color: #c00;
+  font-weight: 600;
+}
+
+.auto-import-info {
+  padding: 1.5rem 2rem;
+  background: var(--color-background);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.auto-import-info h3 {
+  margin: 0 0 1rem 0;
+  color: var(--color-heading);
+  font-size: 1.2rem;
+}
+
+.success-message {
+  color: #22c55e;
+  font-weight: 600;
+  margin: 0.5rem 0;
+}
+
+.error-title {
+  color: #f59e0b;
+  font-weight: 600;
+  margin: 0.5rem 0 0.25rem 0;
+}
+
+.error-list ul {
+  margin: 0.5rem 0 0 1rem;
+  color: var(--color-text);
 }
 
 .linked-accounts-section {
@@ -324,6 +419,12 @@ onMounted(() => {
 
   .btn {
     width: 100%;
+  }
+
+  .error-message {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
   }
 }
 </style>
