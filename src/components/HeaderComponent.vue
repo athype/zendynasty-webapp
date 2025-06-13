@@ -145,57 +145,77 @@ const mobileMenuOpen = ref(false)
 const user = ref(null)
 
 const mobileNavItems = [
-  { text: 'League', to: '/leaderboards', class: '' },
+  { text: 'League', to: '/leaderboard', class: '' }, // Fixed: was '/leaderboards'
   { text: 'Blog', to: '/blog', class: '' },
   { text: 'Join', to: '/#join', class: 'join' },
 ]
 
 async function handleLogin() {
+  console.log('handleLogin called, user:', user.value) // Debug log
+
   if (!user.value) {
     // User is not logged in, initiate Discord OAuth
     try {
+      console.log('Initiating Discord auth')
       AuthService.initiateDiscordAuth()
     } catch (error) {
       console.error('Login failed:', error.message)
     }
   } else {
-    // User is logged in, show profile or logout options
+    // User is logged in, navigate to profile
+    console.log('User is logged in, navigating to profile')
     handleProfileClick()
   }
   closeMobileMenu()
 }
 
 function handleProfileClick() {
-  // You can implement a profile dropdown or navigate to profile page
-  // For now, let's show a simple logout option
-  if (confirm('Would you like to logout?')) {
-    handleLogout()
+  console.log('handleProfileClick called') // Debug log
+
+  // Navigate to profile page using the user's Discord ID
+  const discordId = user.value?.discord_id || AuthService.getDiscordId()
+  console.log('Discord ID for navigation:', discordId) // Debug log
+
+  if (discordId) {
+    console.log(`Navigating to /profile/${discordId}`)
+    router.push(`/profile/${discordId}`)
+  } else {
+    console.error('No Discord ID available for profile navigation')
+    // Fallback: try to get profile and then navigate
+    AuthService.getProfile()
+      .then((profile) => {
+        const profileDiscordId = profile.user?.discord_id || profile.discord_id
+        console.log('Got profile Discord ID:', profileDiscordId)
+        if (profileDiscordId) {
+          router.push(`/profile/${profileDiscordId}`)
+        } else {
+          console.error('No Discord ID in profile response')
+        }
+      })
+      .catch((error) => {
+        console.error('Failed to get profile for navigation:', error)
+      })
   }
   closeMobileMenu()
 }
 
-async function handleLogout() {
-  try {
-    await AuthService.logout()
-    user.value = null
-    console.log('Logged out successfully')
-    router.push('/') // Redirect to home after logout
-  } catch (error) {
-    console.error('Logout failed:', error.message)
-  }
-}
-
 async function checkAuthStatus() {
   try {
+    console.log('Checking auth status...') // Debug log
+
     if (AuthService.isAuthenticated()) {
+      console.log('User is authenticated, fetching profile')
       const profile = await AuthService.getProfile()
       user.value = profile.user || profile
+      console.log('Profile loaded:', user.value?.username)
     } else {
       // Try to get user from token if available
       const userFromToken = AuthService.getUserFromToken()
       if (userFromToken) {
+        console.log('Got user from token:', userFromToken.username)
         user.value = userFromToken
       } else {
+        console.log('No auth token available')
         user.value = null
       }
     }
@@ -228,6 +248,7 @@ function handleKeydown(e) {
 watch(
   () => router.currentRoute.value,
   () => {
+    console.log('Route changed, checking auth status')
     checkAuthStatus()
   },
 )

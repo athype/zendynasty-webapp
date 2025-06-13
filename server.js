@@ -33,6 +33,16 @@ app.get('/leaderboard', (req, res) => {
   res.sendFile(join(__dirname, 'dist', 'index.html'))
 })
 
+app.get('/profile/:discordId', (req, res) => {
+  console.log(`Serving index.html for profile route: /profile/${req.params.discordId}`)
+  res.sendFile(join(__dirname, 'dist', 'index.html'))
+})
+
+app.get('/profile', (req, res) => {
+  console.log('Serving index.html for profile route: /profile')
+  res.sendFile(join(__dirname, 'dist', 'index.html'))
+})
+
 app.get('/', (req, res) => {
   console.log('Serving index.html for route: /')
   res.sendFile(join(__dirname, 'dist', 'index.html'))

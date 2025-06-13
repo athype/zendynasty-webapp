@@ -12,7 +12,7 @@ export class AuthService {
     try {
       // Get the backend URL from your axios config or environment
       const backendUrl = apiClient.defaults.baseURL || window.location.origin
-      const discordAuthUrl = `${backendUrl}/auth/discord` // Fixed: Added /api prefix
+      const discordAuthUrl = `${backendUrl}/auth/discord`
 
       // Redirect to Discord OAuth
       window.location.href = discordAuthUrl
@@ -30,8 +30,6 @@ export class AuthService {
    */
   static async handleDiscordCallback(code, state) {
     try {
-      // The callback is typically handled by the backend
-      // This method can be used if you need to process the callback client-side
       const response = await apiClient.get('/auth/discord/callback', {
         params: { code, state },
       })
@@ -39,6 +37,8 @@ export class AuthService {
       // Store auth token if provided
       if (response.data.token) {
         this.setAuthToken(response.data.token)
+        // Store Discord ID when token is received
+        this.storeUserData(response.data.token)
       }
 
       return response.data
@@ -56,11 +56,20 @@ export class AuthService {
   static async getProfile() {
     try {
       const response = await apiClient.get('/auth/profile')
+
+      // Store user data including Discord ID when profile is fetched
+      if (response.data.user || response.data) {
+        const userData = response.data.user || response.data
+        this.storeDiscordId(userData.discord_id)
+        this.storeUserProfile(userData)
+      }
+
       return response.data
     } catch (error) {
       if (error.response?.status === 401) {
-        // Clear invalid token
+        // Clear invalid token and stored data
         this.clearAuthToken()
+        this.clearStoredUserData()
         throw new Error('Authentication required. Please log in again.')
       }
       throw new Error(`Failed to fetch profile: ${error.response?.data?.message || error.message}`)
@@ -75,13 +84,15 @@ export class AuthService {
     try {
       const response = await apiClient.post('/auth/logout')
 
-      // Clear local auth token
+      // Clear local auth token and stored user data
       this.clearAuthToken()
+      this.clearStoredUserData()
 
       return response.data
     } catch (error) {
-      // Even if logout fails on backend, clear local token
+      // Even if logout fails on backend, clear local data
       this.clearAuthToken()
+      this.clearStoredUserData()
       throw new Error(`Logout failed: ${error.response?.data?.message || error.message}`)
     }
   }
@@ -122,11 +133,14 @@ export class AuthService {
   static setAuthToken(token, remember = true) {
     if (remember) {
       localStorage.setItem('authToken', token)
-      sessionStorage.removeItem('authToken') // Clear session storage
+      sessionStorage.removeItem('authToken')
     } else {
       sessionStorage.setItem('authToken', token)
-      localStorage.removeItem('authToken') // Clear local storage
+      localStorage.removeItem('authToken')
     }
+
+    // Store user data from token when setting auth token
+    this.storeUserData(token)
   }
 
   /**
@@ -135,6 +149,83 @@ export class AuthService {
   static clearAuthToken() {
     localStorage.removeItem('authToken')
     sessionStorage.removeItem('authToken')
+  }
+
+  /**
+   * Store Discord ID in local storage
+   * @param {string} discordId - Discord user ID
+   */
+  static storeDiscordId(discordId) {
+    if (discordId) {
+      localStorage.setItem('discordId', discordId)
+      console.log('Discord ID stored:', discordId)
+    }
+  }
+
+  /**
+   * Get stored Discord ID
+   * @returns {string|null} Discord ID or null
+   */
+  static getDiscordId() {
+    return localStorage.getItem('discordId')
+  }
+
+  /**
+   * Store user profile data in local storage
+   * @param {Object} userData - User profile data
+   */
+  static storeUserProfile(userData) {
+    if (userData) {
+      const profileData = {
+        id: userData.id || userData.user_id,
+        username: userData.username,
+        discriminator: userData.discriminator,
+        avatar: userData.avatar,
+        email: userData.email,
+        role: userData.role,
+        discord_id: userData.discord_id,
+        roles: userData.roles || [],
+        stored_at: Date.now(),
+      }
+
+      localStorage.setItem('userProfile', JSON.stringify(profileData))
+      this.storeDiscordId(userData.discord_id)
+      console.log('User profile stored:', profileData.username)
+    }
+  }
+
+  /**
+   * Get stored user profile
+   * @returns {Object|null} User profile data or null
+   */
+  static getStoredUserProfile() {
+    try {
+      const profileData = localStorage.getItem('userProfile')
+      return profileData ? JSON.parse(profileData) : null
+    } catch (error) {
+      console.error('Error parsing stored user profile:', error)
+      return null
+    }
+  }
+
+  /**
+   * Store user data from JWT token
+   * @param {string} token - JWT token
+   */
+  static storeUserData(token) {
+    const userData = this.getUserFromToken(token)
+    if (userData) {
+      this.storeUserProfile(userData)
+    }
+  }
+
+  /**
+   * Clear all stored user data
+   */
+  static clearStoredUserData() {
+    localStorage.removeItem('discordId')
+    localStorage.removeItem('userProfile')
+    console.log('Stored user data cleared')
   }
 
   /**
@@ -160,13 +251,14 @@ export class AuthService {
 
   /**
    * Get user information from stored token
+   * @param {string} token - Optional token parameter, uses stored token if not provided
    * @returns {Object|null} User info from token or null
    */
-  static getUserFromToken() {
-    const token = this.getAuthToken()
-    if (!token) return null
+  static getUserFromToken(token = null) {
+    const authToken = token || this.getAuthToken()
+    if (!authToken) return null
 
-    const payload = this.parseJWT(token)
+    const payload = this.parseJWT(authToken)
     return payload
       ? {
           id: payload.user_id || payload.id || payload.sub,
@@ -182,6 +274,21 @@ export class AuthService {
   }
 
   /**
+   * Get current user data (from storage or token)
+   * @returns {Object|null} Current user data
+   */
+  static getCurrentUser() {
+    // Try to get from stored profile first (faster)
+    const storedProfile = this.getStoredUserProfile()
+    if (storedProfile) {
+      return storedProfile
+    }
+
+    // Fallback to parsing token
+    return this.getUserFromToken()
+  }
+
+  /**
    * Handle authentication errors globally
    * @param {Error} error - Error object
    * @returns {boolean} Whether error was handled
@@ -189,7 +296,7 @@ export class AuthService {
   static handleAuthError(error) {
     if (error.response?.status === 401) {
       this.clearAuthToken()
-      // Optionally redirect to login or show auth modal
+      this.clearStoredUserData()
       return true
     }
     return false

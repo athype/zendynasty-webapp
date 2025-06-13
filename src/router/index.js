@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue'
 import BlogView from '../views/BlogView.vue'
 import LeaderboardView from '../views/LeaderboardView.vue'
 import AuthCallback from '../components/AuthCallback.vue'
+import ProfileView from '../views/ProfileView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -37,6 +38,16 @@ const router = createRouter({
       component: LeaderboardView,
       beforeEnter: (to, from, next) => {
         // Scroll to the top of the page when navigating to the leaderboard
+        window.scrollTo(0, 0)
+        next()
+      },
+    },
+    {
+      path: '/profile/:discordId',
+      name: 'profile',
+      component: ProfileView,
+      beforeEnter: (to, from, next) => {
+        // Scroll to the top of the page when navigating to the profile
         window.scrollTo(0, 0)
         next()
       },
