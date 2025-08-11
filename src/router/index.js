@@ -4,6 +4,7 @@ import BlogView from '../views/BlogView.vue'
 import LeaderboardView from '../views/LeaderboardView.vue'
 import AuthCallback from '../components/AuthCallback.vue'
 import ProfileView from '../views/ProfileView.vue'
+import RCSRulesView from '../views/RCSRulesView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -48,6 +49,16 @@ const router = createRouter({
       component: ProfileView,
       beforeEnter: (to, from, next) => {
         // Scroll to the top of the page when navigating to the profile
+        window.scrollTo(0, 0)
+        next()
+      },
+    },
+    {
+      path: '/rules-rcs',
+      name: 'rules-rcs',
+      component: RCSRulesView,
+      beforeEnter: (to, from, next) => {
+        // Scroll to the top of the page when navigating to the rules
         window.scrollTo(0, 0)
         next()
       },

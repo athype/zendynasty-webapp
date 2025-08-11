@@ -48,6 +48,11 @@ app.get('/', (req, res) => {
   res.sendFile(join(__dirname, 'dist', 'index.html'))
 })
 
+app.get('/rules-rcs', (req, res) => {
+  console.log('Serving index.html for route: /rules-rcs')
+  res.sendFile(join(__dirname, 'dist', 'index.html'))
+})
+
 // Fallback for any other routes - use a more specific pattern
 app.use((req, res) => {
   console.log(`Serving fallback for route: ${req.url}`)
