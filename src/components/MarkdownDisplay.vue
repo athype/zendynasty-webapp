@@ -62,7 +62,7 @@ const html = computed(() => {
 
 <style scoped>
 .md-display {
-  background: var(--color-background);
+  background: var(--color-background-soft);
   color: var(--color-heading);
   border: 1px solid var(--color-border);
   border-radius: 10px;

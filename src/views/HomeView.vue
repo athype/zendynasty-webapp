@@ -1,6 +1,6 @@
 <script setup>
-//import AboutComponent from '@/components/AboutComponent.vue'
 import AboutComponentPrimeCarousel from '@/components/AboutComponentPrimeCarousel.vue'
+import MarkdownDisplay from '@/components/MarkdownDisplay.vue'
 </script>
 
 <template>
@@ -8,6 +8,9 @@ import AboutComponentPrimeCarousel from '@/components/AboutComponentPrimeCarouse
     <AboutComponentPrimeCarousel />
   </div>
   <main class="landing-container">
+    <div id="history" class="history">
+      <MarkdownDisplay src="/content/history.md" />
+    </div>
     <div id="join" class="landing-content">
       <h1 class="landing-title">Zen Dynasty</h1>
       <p class="landing-subtitle">A Clash of Clans Discord Community</p>
@@ -21,6 +24,7 @@ import AboutComponentPrimeCarousel from '@/components/AboutComponentPrimeCarouse
 <style scoped>
 .landing-container {
   min-height: 100vh;
+  padding: 3rem 2.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -79,5 +83,11 @@ import AboutComponentPrimeCarousel from '@/components/AboutComponentPrimeCarouse
   background: var(--vt-c-primary-dark);
   transform: translateY(-2px) scale(1.04);
   box-shadow: 0 4px 24px 0 rgba(237, 28, 36, 0.35);
+}
+
+.history {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: auto;
 }
 </style>

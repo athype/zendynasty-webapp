@@ -66,6 +66,7 @@
           <ul class="footer-links">
             <li><a href="https://discord.gg/zendynasty" class="footer-link">Discord Server</a></li>
             <li><a href="#" class="footer-link">Clan Rules</a></li>
+            <li><a href="/rules-rcs" class="footer-link">RCS Rules</a></li>
             <li><a href="#" class="footer-link">Events</a></li>
             <li><a href="#" class="footer-link">Leaderboards</a></li>
           </ul>
