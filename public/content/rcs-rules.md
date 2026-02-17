@@ -25,7 +25,7 @@ While clans may maintain their own distinct set of clan specific rules, the foll
 
 - All membership and roster determinations are the sole purview of each clan, and autonomously adjudicated. If a member is expelled and believes there is cause for complaint, and is unable or unwilling to discuss the matter with the clan leadership, we are willing to address concerns message the mods
 
-- All RCS clans require the RCS password for entry. The password is coffee and in-game join requests missing the password will be denied
+- All RCS clans require the RCS password for entry. The password is fox and in-game join requests missing the password will be denied
 
 - All members have access to the [RCS discord](https://discord.gg/X8U9XjD)
   <br>
