@@ -25,38 +25,43 @@ import TimelineHistory from '@/components/TimelineHistory.vue'
       <div class="join-content">
         <div class="join-header">
           <h1 class="join-title">Ready to Join the Dynasty?</h1>
-          <p class="join-subtitle">Become part of our legendary Clash of Clans community</p>
+          <p class="join-subtitle">Become part of our Clash of Clans community</p>
         </div>
 
         <div class="join-features">
           <div class="feature-card">
             <i class="fas fa-users feature-icon"></i>
             <h3>Active Community</h3>
-            <p>Join 50+ active members in our Discord server</p>
+            <p>Join 1000+ members in our Discord server</p>
           </div>
           <div class="feature-card">
             <i class="fas fa-trophy feature-icon"></i>
             <h3>Competitive Wars</h3>
-            <p>Participate in strategic clan wars and tournaments</p>
+            <p>Participate in competitive clan wars and tournaments</p>
           </div>
           <div class="feature-card">
             <i class="fas fa-handshake feature-icon"></i>
             <h3>Friendly Environment</h3>
-            <p>Learn and grow with supportive clan mates</p>
+            <p>Learn and grow with clan mates from all over the world</p>
+          </div>
+          <div class="feature-card">
+            <i class="fas fa-trophy feature-icon"></i>
+            <h3>Champion CWL</h3>
+            <p>Play in the Clan War League from crystal to champion level</p>
           </div>
         </div>
 
         <div class="join-stats">
           <div class="stat">
+            <span class="stat-number">6</span>
+            <span class="stat-label">Active Clans</span>
+          </div>
+          <div class="stat">
             <span class="stat-number">50+</span>
-            <span class="stat-label">Active Members</span>
+            <span class="stat-label">Win streaks</span>
           </div>
           <div class="stat">
-            <span class="stat-number">87%</span>
-            <span class="stat-label">Win Rate</span>
-          </div>
-          <div class="stat">
-            <span class="stat-number">5</span>
+            <span class="stat-number">12</span>
             <span class="stat-label">Years Strong</span>
           </div>
         </div>
@@ -71,14 +76,6 @@ import TimelineHistory from '@/components/TimelineHistory.vue'
             <i class="fab fa-discord"></i>
             Join Discord Server
           </a>
-          <button class="join-btn secondary" onclick="navigator.clipboard.writeText('#ZEN2020')">
-            <i class="fas fa-copy"></i>
-            Copy Clan Tag
-          </button>
-        </div>
-
-        <div class="join-clan-tag">
-          <span>Clan Tag: <strong>#ZEN2020</strong></span>
         </div>
       </div>
     </div>
@@ -318,21 +315,6 @@ import TimelineHistory from '@/components/TimelineHistory.vue'
   color: white;
   transform: translateY(-2px) scale(1.05);
   box-shadow: 0 6px 25px rgba(237, 28, 36, 0.4);
-}
-
-.join-clan-tag {
-  color: var(--color-text);
-  font-size: 1.1rem;
-  opacity: 0.8;
-}
-
-.join-clan-tag strong {
-  color: var(--color-gold);
-  font-family: 'Courier New', monospace;
-  background: var(--color-background);
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.5rem;
-  border: 1px solid var(--color-border);
 }
 
 @media (max-width: 768px) {
