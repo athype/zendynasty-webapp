@@ -14,6 +14,12 @@ app.get('/discord', (req, res) => {
   res.redirect(301, 'https://discord.gg/mQ3u9cps3G')
 })
 
+// Handle Discord redirect BEFORE static files
+app.get('/invite', (req, res) => {
+  console.log('Redirecting to Discord invite')
+  res.redirect(301, 'https://discord.gg/mQ3u9cps3G')
+})
+
 // Serve static files
 app.use(express.static(join(__dirname, 'dist')))
 
